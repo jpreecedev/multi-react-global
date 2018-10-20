@@ -15,6 +15,7 @@
   "rules": {
     "react/prop-types": "off",
     "react/jsx-filename-extension": [1, { "extensions": [".js"] }],
-    "no-underscore-dangle": "off"
+    "no-underscore-dangle": "off",
+    "no-multi-assign": "off"
   }
 }

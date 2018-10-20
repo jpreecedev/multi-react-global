@@ -1,16 +1,36 @@
 import * as React from 'react'
 
-window.GlobalState = window.GlobalState || {}
+window.__GLOBAL_STATE__ = window.__GLOBAL_STATE__ || {}
 
 const ReactContext = React.createContext({})
+const STATE_CHANGED = 'GLOBAL_STATE_CHANGED'
 
-class StateProvider extends React.Component {
-  state = {
-    ...window.__GLOBAL_STATE__
+global.updateState = state => {
+  const newState = (window.__GLOBAL_STATE__ = { ...window.__GLOBAL_STATE__, ...state })
+  window.dispatchEvent(new CustomEvent(STATE_CHANGED, { detail: newState }))
+}
+
+export const StateConsumer = ReactContext.Consumer
+
+export class StateProvider extends React.Component {
+  constructor(props) {
+    super(props)
+
+    window.addEventListener(STATE_CHANGED, ({ detail: state }) => {
+      this.setState(state)
+    })
+
+    this.state = {
+      ...props.value
+    }
+  }
+
+  componentDidMount = () => {
+    global.updateState(this.state)
   }
 
   updateState = state => {
-    window.__GLOBAL_STATE__ = { ...window.__GLOBAL_STATE__, ...state }
+    global.updateState(state)
   }
 
   render() {
@@ -28,5 +48,3 @@ class StateProvider extends React.Component {
     )
   }
 }
-
-export default { StateProvider, StateConsumer: ReactContext.Consumer }
